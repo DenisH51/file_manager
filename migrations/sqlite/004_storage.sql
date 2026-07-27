@@ -1,0 +1,20 @@
+CREATE TABLE storage (
+
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+    user_id INTEGER NOT NULL UNIQUE,
+
+    used_bytes INTEGER NOT NULL DEFAULT 0,
+
+    limit_bytes INTEGER NOT NULL DEFAULT 10737418240,
+
+    files_count INTEGER NOT NULL DEFAULT 0,
+
+    folders_count INTEGER NOT NULL DEFAULT 0,
+
+
+    FOREIGN KEY(user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+
+); 

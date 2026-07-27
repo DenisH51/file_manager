@@ -4,18 +4,15 @@ use axum::{
     routing::get
 };
 
-use crate::database::Database;
+use sqlx::SqlitePool;
 
 
 
 
-pub fn create_router(database: Database) -> Router {
+pub fn create_router(database: SqlitePool) -> Router {
 
     Router::new()
         .route("/", get(handlers::pages::home))
-        
-
-
-    
+        .with_state(database)
 
 }

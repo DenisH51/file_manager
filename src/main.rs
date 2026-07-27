@@ -14,7 +14,7 @@ async fn main(){
 
     let server_address: String = "127.0.0.1:8080".to_string();
 
-    let database = database::connect().await;
+    let database = database::connect_database().await;
 
     let router = router::create_router(database);
 
