@@ -1,7 +1,10 @@
 mod router;
 mod handlers;
 mod database;
-
+mod services;
+mod templates;
+mod models;
+mod errors;
 
 use tokio::net::TcpListener;
 

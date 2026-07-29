@@ -4,8 +4,6 @@ CREATE TABLE profiles (
 
     user_id INTEGER NOT NULL UNIQUE,
 
-    username TEXT NOT NULL UNIQUE,
-
     first_name TEXT,
 
     last_name TEXT,

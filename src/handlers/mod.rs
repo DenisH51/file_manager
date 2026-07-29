@@ -1,3 +1,2 @@
+pub mod api;
 pub mod pages;
-pub mod auth;
-pub mod files;
