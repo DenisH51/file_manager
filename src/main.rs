@@ -1,5 +1,6 @@
 mod router;
 mod handlers;
+mod middleware;
 mod database;
 mod services;
 mod templates;
