@@ -1,8 +1,7 @@
 
-
 use crate::errors::auth_err::ValidationError;
 
-pub fn validate_email(email: &str) -> Result<(), ValidationError> {
+pub fn validate_email_reg(email: &str) -> Result<(), ValidationError> {
 
     if email.trim().is_empty() {
         return Err(ValidationError::EmptyEmail);
@@ -21,7 +20,7 @@ pub fn validate_email(email: &str) -> Result<(), ValidationError> {
 
 
 
-pub fn validate_username(username: &str) -> Result<(), ValidationError> {
+pub fn validate_username_reg(username: &str) -> Result<(), ValidationError> {
 
     if username.trim().is_empty() {
         return Err(ValidationError::EmptyUsername);
@@ -45,7 +44,9 @@ pub fn validate_username(username: &str) -> Result<(), ValidationError> {
     Ok(())
 }
 
-pub fn validate_password(password: &str) -> Result<(), ValidationError> {
+pub fn validate_password_reg(password: &str, confirm_password: &str) -> Result<(), ValidationError> {
+    println!("PASSWORD VALIDATOR: {:?}", password);
+
     if password.trim().is_empty() {
         return Err(ValidationError::EmptyPassword);
     }
@@ -69,6 +70,39 @@ pub fn validate_password(password: &str) -> Result<(), ValidationError> {
     if forbidden.contains(&password) {
         return Err(ValidationError::WeakPassword);
     }
+    
+    if password != confirm_password{
+        return Err(ValidationError::PasswordsDoNotMatch)
+    }
 
     Ok(())
 }
+
+
+pub fn validate_email_login(email: &str) -> Result<(), ValidationError>{
+    if email.trim().is_empty(){
+        return Err(ValidationError::EmptyUsername);
+    }
+
+    if email.len() > 64 {
+        return Err(ValidationError::UsernameTooLong);
+    }
+
+    Ok(())
+}
+
+pub fn validate_password_login(password: &str) -> Result<(), ValidationError>{
+    if password.trim().is_empty() {
+        return Err(ValidationError::EmptyPassword);
+    }
+
+
+    if password.len() > 127{
+        return Err(ValidationError::PasswordTooLong);
+    }
+
+    Ok(())
+}
+
+
+

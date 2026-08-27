@@ -63,3 +63,9 @@ pub struct User{
 
     
 }
+
+pub struct UserLogin{
+    pub id: i64,
+
+    pub password_hash: String,
+}

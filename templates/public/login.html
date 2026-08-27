@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Log in</title>
+
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
+</head>
+
+<body>
+
+<main class="auth-container">
+
+    <h1>Welcome back</h1>
+
+    <form id="login-form">
+
+        <!-- General error -->
+        <div
+            id="general-error"
+            class="error-message"
+        ></div>
+
+
+        <!-- Email -->
+        <div class="form-group">
+
+            <label for="email">
+                Email
+            </label>
+
+            <input
+                type="email"
+                id="email"
+                name="email"
+                autocomplete="email"
+                required
+            >
+
+            <div
+                id="email-error"
+                class="error-message"
+            ></div>
+
+        </div>
+
+
+        <!-- Password -->
+        <div class="form-group">
+
+            <label for="password">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                name="password"
+                autocomplete="current-password"
+                required
+            >
+
+            <div
+                id="password-error"
+                class="error-message"
+            ></div>
+
+        </div>
+
+
+        <button type="submit">
+            Log in
+        </button>
+
+    </form>
+
+
+    <p class="auth-link">
+        Don't have an account?
+        <a href="/register">
+            Create account
+        </a>
+    </p>
+
+</main>
+
+
+<script
+    type="module"
+    src="/static/js/login.js"
+></script>
+
+</body>
+
+</html>

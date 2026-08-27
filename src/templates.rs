@@ -2,10 +2,13 @@
 
 
 pub const HOME: &str =
-    include_str!("../templates/home.html");
+    include_str!("../templates/public/home.html");
 
 pub const LOGIN: &str =
-    include_str!("../templates/login.html");
+    include_str!("../templates/public/login.html");
 
 pub const REGISTRATE: &str =
-    include_str!("../templates/registrate.html");
+    include_str!("../templates/public/register.html");
+
+pub const AUTH_HOME: &str = 
+    include_str!("../templates/auth/auth_home.html");

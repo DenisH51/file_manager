@@ -21,7 +21,3 @@ pub async fn registrate_page() -> Html<String>{
         templates::REGISTRATE.to_string()
     )
 }
-
-pub async fn dashboard(){
-    println!("dashboard handler");
-}

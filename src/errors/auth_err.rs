@@ -1,5 +1,7 @@
 
 
+
+
 #[derive(Debug)]
 pub enum ValidationError {
     EmptyEmail,
@@ -14,7 +16,8 @@ pub enum ValidationError {
     EmptyPassword,
     PasswordTooShort,
     PasswordTooLong,
-    WeakPassword
+    WeakPassword,
+    PasswordsDoNotMatch,
 }
 
 
@@ -34,6 +37,8 @@ impl ValidationError {
             ValidationError::PasswordTooShort => "Password must contain at least 8 characters",
             ValidationError::PasswordTooLong => "Password is too long",
             ValidationError::WeakPassword => "Choose a stronger password",
+
+            ValidationError::PasswordsDoNotMatch => "Passwords do not match",
         }
     }
 }
@@ -50,8 +55,31 @@ pub enum AuthError {
     UsernameAlreadyExists,
 
     PasswordHashError,
-    
 
     Database(sqlx::Error),
+
+    InvalidCredentials,
 }
 
+
+impl ValidationError {
+    pub fn field(&self) -> &'static str {
+        match self {
+            ValidationError::EmptyEmail
+            | ValidationError::EmailTooLong
+            | ValidationError::InvalidEmail => "email",
+
+            ValidationError::EmptyUsername
+            | ValidationError::UsernameTooLong
+            | ValidationError::UsernameTooShort
+            | ValidationError::InvalidUsername => "username",
+
+            ValidationError::EmptyPassword
+            | ValidationError::PasswordTooLong
+            | ValidationError::PasswordTooShort
+            | ValidationError::WeakPassword => "password",
+
+            ValidationError::PasswordsDoNotMatch => "confirm_password",
+        }
+    }
+}

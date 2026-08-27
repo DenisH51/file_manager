@@ -1,10 +1,11 @@
 use serde::Deserialize;
 
 #[derive(Deserialize)]
-pub struct RegistrateRequest{
+pub struct RegisterRequest{
     pub email: String,
     pub username: String,
     pub password: String,
+    pub confirm_password: String,
 }
 
 #[derive(Deserialize)]
