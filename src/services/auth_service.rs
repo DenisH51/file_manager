@@ -1,4 +1,4 @@
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 
 use crate::responses::errors::auth_err::BusinessError::{EmailAlreadyExists, InvalidCredentials, UsernameAlreadyExists};
 use crate::responses::errors::auth_err::InfrastructureError::{Database, PasswordHashError, PasswordVerificationError};
@@ -19,7 +19,7 @@ use crate::responses::errors::auth_err;
 
 
 
-pub async fn register(db: &SqlitePool, data: RegisterRequest) -> Result<i64, auth_err::AuthError> {
+pub async fn register(db: &PgPool, data: RegisterRequest) -> Result<i64, auth_err::AuthError> {
     //check email
     validator_service::validate_email_reg(&data.email)
         .map_err(auth_err::AuthError::Validation)?;
@@ -69,7 +69,7 @@ pub async fn register(db: &SqlitePool, data: RegisterRequest) -> Result<i64, aut
 
 
 
-pub async fn login(db: &SqlitePool, data: LoginRequest) -> Result<i64, auth_err::AuthError>{
+pub async fn login(db: &PgPool, data: LoginRequest) -> Result<i64, auth_err::AuthError>{
 
     //check email
     validator_service::validate_email_login(&data.email)
@@ -123,14 +123,14 @@ pub async fn login(db: &SqlitePool, data: LoginRequest) -> Result<i64, auth_err:
 //----------------------------------------------------------------
 
  
-async fn find_user_login_data(db: &SqlitePool, email: &str,) -> Result<Option<UserLogin>, sqlx::Error> {
+async fn find_user_login_data(db: &PgPool, email: &str,) -> Result<Option<UserLogin>, sqlx::Error> {
     
     let user = sqlx::query_as!(
         UserLogin,
         "
-        SELECT id, password_hash
-        FROM users
-        WHERE email = ?
+            SELECT id, password_hash
+            FROM users
+            WHERE email = $1
         ",
         email
     )
@@ -142,14 +142,17 @@ async fn find_user_login_data(db: &SqlitePool, email: &str,) -> Result<Option<Us
 
 
 
-async fn email_exists(email: &str, db: &SqlitePool) -> Result<bool, sqlx::Error>{
-    
-    let account= sqlx::query!(
+async fn email_exists(
+    email: &str,
+    db: &PgPool,
+) -> Result<bool, sqlx::Error> {
+    let account = sqlx::query!(
         "
-        SELECT id
-        FROM users
-        WHERE email = ?
-        ", email
+            SELECT id
+            FROM users
+            WHERE email = $1
+        ",
+        email
     )
     .fetch_optional(db)
     .await?;
@@ -159,17 +162,20 @@ async fn email_exists(email: &str, db: &SqlitePool) -> Result<bool, sqlx::Error>
 
 
 
-async fn username_exists(username: &str, db: &SqlitePool) -> Result<bool, sqlx::Error>{
+async fn username_exists(
+    username: &str,
+    db: &PgPool,
+) -> Result<bool, sqlx::Error> {
     let account = sqlx::query!(
         "
-        SELECT id
-        FROM users
-        WHERE username = ?
+            SELECT id
+            FROM users
+            WHERE username = $1
         ",
         username
     )
-        .fetch_optional(db)
-        .await?;
+    .fetch_optional(db)
+    .await?;
 
     Ok(account.is_some())
 }
@@ -179,27 +185,23 @@ async fn username_exists(username: &str, db: &SqlitePool) -> Result<bool, sqlx::
 
 
 
-async fn save_data_db(
-    db: &SqlitePool,
-    data: &RegisterRequest,
-    password_hash: &str,
-) -> Result<i64, sqlx::Error> {
+async fn save_data_db(db: &PgPool, data: &RegisterRequest, password_hash: &str,) -> Result<i64, sqlx::Error> {
     let result = sqlx::query!(
         "
-        INSERT INTO users (
-            email,
-            username,
-            password_hash
-        )
-        VALUES (?, ?, ?);
+            INSERT INTO users (
+                email,
+                username,
+                password_hash
+            )
+            VALUES ($1, $2, $3)
+            RETURNING id
         ",
         data.email,
         data.username,
         password_hash,
     )
-    .execute(db)
+    .fetch_one(db)
     .await?;
 
-    Ok(result.last_insert_rowid())
+    Ok(result.id)
 }
-

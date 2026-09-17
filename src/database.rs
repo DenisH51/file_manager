@@ -1,13 +1,13 @@
 use sqlx::{
-    sqlite::SqlitePoolOptions,
-    SqlitePool,
+    postgres::PgPoolOptions,
+    PgPool,
 };
 
 use dotenvy::dotenv;
 use std::env;
 
 
-pub async fn connect_database() -> SqlitePool{
+pub async fn connect_database() -> PgPool{
 
 
     dotenv().ok();
@@ -16,12 +16,12 @@ pub async fn connect_database() -> SqlitePool{
         .expect("DATABASE_URL not found");
 
 
-    let database = SqlitePoolOptions::new()
+    let database = PgPoolOptions::new()
         .connect(&database_url)
         .await
         .expect("Database connection failed");
 
-    sqlx::migrate!("./migrations/sqlite")
+    sqlx::migrate!("./migrations/postgre")
         .run(&database)
         .await
         .expect("Database migration failed");

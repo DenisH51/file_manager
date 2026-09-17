@@ -6,14 +6,14 @@ use axum::{
 
 use axum_extra::extract::cookie::CookieJar;
 
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 
 use crate::services::{session_service, error_service};
 use crate::responses::errors::session_err;
 
 //checks session to allow access to secure pages 
 pub async fn require_auth(
-    State(db): State<SqlitePool>,
+    State(db): State<PgPool>,
     jar: CookieJar,
     request: Request,
     next: Next,

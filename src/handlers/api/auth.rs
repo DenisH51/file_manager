@@ -10,7 +10,7 @@ use crate::{services::auth_service};
 use crate::responses::success::general_success::Successes;
 use crate::responses::errors::{session_err};
 
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 
 use crate::models;
 
@@ -39,7 +39,7 @@ async fn clear_users(db: &SqlitePool) -> Result<(), sqlx::Error> {
 
 
 pub async fn register(
-    State(db): State<SqlitePool>,
+    State(db): State<PgPool>,
     Form(data): Form<models::requests::RegisterRequest>,
 ) -> impl IntoResponse {
 
@@ -74,7 +74,7 @@ pub async fn register(
 
 
 pub async fn login(
-    State(db): State<SqlitePool>,
+    State(db): State<PgPool>,
     Form(data): Form<models::requests::LoginRequest>,
 ) -> impl IntoResponse {
 
@@ -109,7 +109,7 @@ pub async fn login(
 
 
 pub async fn logout(
-    State(db): State<SqlitePool>,
+    State(db): State<PgPool>,
     jar: CookieJar,
 ) -> impl IntoResponse {
 

@@ -9,12 +9,12 @@ use axum::{
     Router,
 };
 
-use sqlx::SqlitePool;
+use sqlx::PgPool;
 use tower_http::services::ServeDir;
 
 
 
-pub fn create_router(database: SqlitePool) -> Router {
+pub fn create_router(database: PgPool) -> Router {
 
     //router only for authorised users 
     let auth_router = Router::new()
