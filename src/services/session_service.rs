@@ -3,7 +3,7 @@ use uuid::Uuid;
 use cookie::Cookie;
 
 
-use crate::{errors::session_err::SessionError, models::session::Session};
+use crate::responses::errors::session_err::{SessionError};
 
 
 
@@ -25,17 +25,21 @@ pub async fn create_session(db: &SqlitePool, user_id: i64) -> Result<String, Ses
         VALUES (
             ?,
             ?,
-            datetime('now', '+7 days')
+            datetime('now', '+1 minute')
         )
         ",
         user_id,
         session_token
     )
     .execute(db)
-    .await?;
+    .await
+    .map_err(|err|SessionError::SessionCreation(err))?;
 
     Ok(session_token)
 }
+
+
+
 
 pub fn create_session_cookie(
     session_token: &str,
@@ -46,6 +50,8 @@ pub fn create_session_cookie(
         .path("/")
         .build()
 }
+
+
 
 
 pub async fn find_session(
@@ -63,10 +69,12 @@ pub async fn find_session(
         session_token
     )
     .fetch_optional(db)
-    .await?;
+    .await
+    .map_err(|err|SessionError::Database(err))?;
 
     Ok(session.map(|session| session.user_id))
 }
+
 
 
 pub async fn delete_session(
@@ -82,20 +90,11 @@ pub async fn delete_session(
         session_token
     )
     .execute(db)
-    .await?;
+    .await
+    .map_err(|err|SessionError::DeleteSession(err))?;
 
     Ok(())
 }
 
-pub fn delete_session_cookie() -> Cookie<'static> {
-    Cookie::build(("session_token", ""))
-        .http_only(true)
-        .secure(false)
-        .path("/")
-        .max_age(time::Duration::seconds(0))
-        .build()
-}
-
-//pub async fn refresh_session()
 
 

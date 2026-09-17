@@ -13,6 +13,22 @@
 <body>
 
 <main class="auth-container">
+<div
+    id="flash-container"
+    class="{{FLASH_CLASS}}"
+>
+    {{FLASH_MESSAGE}}
+</div>
+
+<script>
+    const flashContainer = document.getElementById("flash-container");
+
+    if (flashContainer && flashContainer.textContent.trim() !== "") {
+        setTimeout(() => {
+            flashContainer.remove();
+        }, 3000);
+    }
+</script>
 
     <h1>Create account</h1>
 
@@ -97,10 +113,7 @@
 
 </main>
 
-<script
-    type="module"
-    src="/static/js/register.js"
-></script>
+<script src="/static/js/register.js"></script>
 
 </body>
 </html>

@@ -80,3 +80,42 @@
 .auth-link a {
     text-decoration: none;
 }
+
+#flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+
+    padding: 15px 20px;
+    border-radius: 8px;
+
+    font-size: 14px;
+
+    z-index: 1000;
+
+    animation: flash-show 0.3s ease;
+}
+
+.flash-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+@keyframes flash-show {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

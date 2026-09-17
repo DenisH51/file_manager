@@ -1,5 +1,5 @@
 
-use crate::errors::auth_err::ValidationError;
+use crate::responses::errors::auth_err::ValidationError;
 
 pub fn validate_email_reg(email: &str) -> Result<(), ValidationError> {
 
@@ -45,7 +45,6 @@ pub fn validate_username_reg(username: &str) -> Result<(), ValidationError> {
 }
 
 pub fn validate_password_reg(password: &str, confirm_password: &str) -> Result<(), ValidationError> {
-    println!("PASSWORD VALIDATOR: {:?}", password);
 
     if password.trim().is_empty() {
         return Err(ValidationError::EmptyPassword);
@@ -81,11 +80,11 @@ pub fn validate_password_reg(password: &str, confirm_password: &str) -> Result<(
 
 pub fn validate_email_login(email: &str) -> Result<(), ValidationError>{
     if email.trim().is_empty(){
-        return Err(ValidationError::EmptyUsername);
+        return Err(ValidationError::EmptyEmail);
     }
 
     if email.len() > 64 {
-        return Err(ValidationError::UsernameTooLong);
+        return Err(ValidationError::EmailTooLong);
     }
 
     Ok(())

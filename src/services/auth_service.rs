@@ -1,5 +1,7 @@
 use sqlx::SqlitePool;
 
+use crate::responses::errors::auth_err::BusinessError::{EmailAlreadyExists, InvalidCredentials, UsernameAlreadyExists};
+use crate::responses::errors::auth_err::InfrastructureError::{Database, PasswordHashError, PasswordVerificationError};
 use crate::models::requests::{
     RegisterRequest,
     LoginRequest,
@@ -7,10 +9,10 @@ use crate::models::requests::{
 
 use crate::models::user::UserLogin;
 use crate::services::validator_service::{self};
-
+use crate::responses::errors::auth_err::PasswordVerification;
 use super::password_service;
 
-use crate::errors::auth_err;
+use crate::responses::errors::auth_err;
 
 
 
@@ -24,16 +26,11 @@ pub async fn register(db: &SqlitePool, data: RegisterRequest) -> Result<i64, aut
 
     let email_exists = email_exists(&data.email, db)
         .await
-        .map_err(auth_err::AuthError::Database)?;
+        .map_err(|err| auth_err::AuthError::Infrastructure(Database(err)))?;
 
-
-
-    
     if email_exists{
-        return Err(auth_err::AuthError::EmailAlreadyExists);
+        return Err(auth_err::AuthError::Business(EmailAlreadyExists));
     }
-
-
 
 
 
@@ -41,38 +38,30 @@ pub async fn register(db: &SqlitePool, data: RegisterRequest) -> Result<i64, aut
     validator_service::validate_username_reg(&data.username)
         .map_err(auth_err::AuthError::Validation)?;
 
-
-
-
     let username_exists = username_exists(&data.username, db)
         .await
-        .map_err(auth_err::AuthError::Database)?;
-
-
-
+        .map_err(|err| auth_err::AuthError::Infrastructure(Database(err)))?;
 
     if username_exists{
-        return Err(auth_err::AuthError::UsernameAlreadyExists);
+        return Err(auth_err::AuthError::Business(UsernameAlreadyExists));
     }
     
+
+
     //check password
     validator_service::validate_password_reg(&data.password, &data.confirm_password)
         .map_err(auth_err::AuthError::Validation)?;
 
-
-
     let password_hash = password_service::hash_password(&data.password)
-        .map_err(|error| {
-            println!("Password hash error: {:?}", error);
-            auth_err::AuthError::PasswordHashError
-        })?;
+        .map_err(|err| auth_err::AuthError::Infrastructure(PasswordHashError(err)))?;
     
+
 
     //save data in db
     let user_id = save_data_db(db, &data, &password_hash)
         .await
-        .map_err(auth_err::AuthError::Database)?;
-
+        .map_err(|err| auth_err::AuthError::Infrastructure(Database(err)))?;
+    
     Ok(user_id)
     
 }
@@ -91,22 +80,37 @@ pub async fn login(db: &SqlitePool, data: LoginRequest) -> Result<i64, auth_err:
     validator_service::validate_password_login(&data.password)
         .map_err(auth_err::AuthError::Validation)?;
 
+
     let user = find_user_login_data(db, &data.email)
         .await
-        .map_err(auth_err::AuthError::Database)?;
+        .map_err(|err| auth_err::AuthError::Infrastructure(Database(err)))?;
 
     let user: UserLogin = match user{
         Some(user) => user,
         None => {
-            return Err(auth_err::AuthError::InvalidCredentials);
+            return Err(auth_err::AuthError::Business(InvalidCredentials));
         }
     };
 
-    password_service::verify_password(&data.password, &user.password_hash)
-        .map_err(|_| auth_err::AuthError::InvalidCredentials)?;
+    match password_service::verify_password(
+        &data.password,
+        &user.password_hash
+    ) {
+    Ok(_) => {}
+
+    Err(PasswordVerification::InvalidPassword) => {
+        return Err(auth_err::AuthError::Business(InvalidCredentials));
+    }
+
+    Err(PasswordVerification::Error(error)) => {
+        return Err(auth_err::AuthError::Infrastructure(
+            PasswordVerificationError(error)
+        ));
+    }
+}
+    
     Ok(user.id)
 }
-
 
 
 

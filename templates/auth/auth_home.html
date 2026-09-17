@@ -3,36 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Vault</title>
+    
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/auth.css">
 </head>
 <body>
 
     <header>
-        <h1>File Vault</h1>
 
-        <nav>
-            <a href="/auth/home">Home</a>
-            <a href="/auth/files">Files</a>
-            <a href="/auth/profile">Profile</a>
+
             <form action="/api/auth/logout" method="post">
                 <button type="submit">Logout</button>
             </form>
-        </nav>
+
     </header>
 
     <main>
-        <h2>Welcome to File Vault</h2>
+        <div
+    id="flash-container"
+    class="{{FLASH_CLASS}}"
+>
+    {{FLASH_MESSAGE}}
+</div>
 
-        <p>Your files are stored securely.</p>
+<script>
+    const flashContainer = document.getElementById("flash-container");
 
-        <section>
-            <h3>Quick actions</h3>
+    if (flashContainer && flashContainer.textContent.trim() !== "") {
+        setTimeout(() => {
+            flashContainer.remove();
+        }, 3000);
+    }
+</script>
+        <h2>auth/home</h2>
 
-            <a href="/auth/files">Open my files</a>
-            <br>
-            <a href="/auth/profile">My profile</a>
-        </section>
-    </main>
+</main>
 
 </body>
 </html>

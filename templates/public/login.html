@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -18,9 +17,18 @@
 
     <h1>Welcome back</h1>
 
+    <!-- Flash notification -->
+    <div
+        id="flash-container"
+        class="{{FLASH_CLASS}}"
+    >
+        {{FLASH_MESSAGE}}
+    </div>
+
+
     <form id="login-form">
 
-        <!-- General error -->
+        <!-- General auth error -->
         <div
             id="general-error"
             class="error-message"
@@ -90,10 +98,7 @@
 </main>
 
 
-<script
-    type="module"
-    src="/static/js/login.js"
-></script>
+<script src="/static/js/login.js"></script>
 
 </body>
 

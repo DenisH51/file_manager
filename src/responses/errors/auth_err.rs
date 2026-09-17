@@ -2,6 +2,7 @@
 
 
 
+
 #[derive(Debug)]
 pub enum ValidationError {
     EmptyEmail,
@@ -19,6 +20,38 @@ pub enum ValidationError {
     WeakPassword,
     PasswordsDoNotMatch,
 }
+
+#[derive(Debug)]
+pub enum PasswordVerification {
+    InvalidPassword,
+    Error(argon2::password_hash::Error),
+}
+
+#[derive(Debug)]
+pub enum BusinessError {
+    EmailAlreadyExists,
+    UsernameAlreadyExists,
+    InvalidCredentials,
+}
+
+#[derive(Debug)]
+pub enum InfrastructureError{
+    Database(sqlx::Error),
+    PasswordVerificationError(argon2::password_hash::Error),
+    PasswordHashError(argon2::password_hash::Error)
+}
+
+#[derive(Debug)]
+pub enum AuthError{
+    Validation(ValidationError),
+    Business(BusinessError),
+    Infrastructure(InfrastructureError),
+}
+
+
+
+
+
 
 
 impl ValidationError {
@@ -41,28 +74,8 @@ impl ValidationError {
             ValidationError::PasswordsDoNotMatch => "Passwords do not match",
         }
     }
-}
 
 
-
-
-#[derive(Debug)]
-pub enum AuthError {
-    Validation(ValidationError),
-    
-    EmailAlreadyExists,
-
-    UsernameAlreadyExists,
-
-    PasswordHashError,
-
-    Database(sqlx::Error),
-
-    InvalidCredentials,
-}
-
-
-impl ValidationError {
     pub fn field(&self) -> &'static str {
         match self {
             ValidationError::EmptyEmail
@@ -80,6 +93,46 @@ impl ValidationError {
             | ValidationError::WeakPassword => "password",
 
             ValidationError::PasswordsDoNotMatch => "confirm_password",
+        }
+    }
+
+
+}
+
+impl BusinessError {
+    pub fn message(&self) -> &'static str{
+        match self{
+            BusinessError::EmailAlreadyExists => "Email already exists",
+            BusinessError::UsernameAlreadyExists => "Username already exists",
+            BusinessError::InvalidCredentials => "Invalid Credentials",
+        }
+    }
+
+
+    pub fn field(&self) -> &'static str{
+        match self{
+            BusinessError::EmailAlreadyExists => "email",
+            BusinessError::UsernameAlreadyExists => "username",
+            BusinessError::InvalidCredentials => "general"
+        }
+    }   
+}
+
+
+impl InfrastructureError {
+    pub fn message(&self) -> &'static str{
+        match self{
+            InfrastructureError::Database(_) => "Somethig going wrong",
+            InfrastructureError::PasswordHashError(_) => "Somethig going wrong",
+            InfrastructureError::PasswordVerificationError(_) => "Somethig going wrong",
+        }
+    }
+
+    pub fn field(&self) -> &'static str{
+        match self{
+            InfrastructureError::Database(_)
+            |InfrastructureError::PasswordHashError(_)
+            |InfrastructureError::PasswordVerificationError(_) => "general",
         }
     }
 }

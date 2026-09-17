@@ -7,7 +7,7 @@ pub const HOME: &str =
 pub const LOGIN: &str =
     include_str!("../templates/public/login.html");
 
-pub const REGISTRATE: &str =
+pub const REGISTER: &str =
     include_str!("../templates/public/register.html");
 
 pub const AUTH_HOME: &str = 

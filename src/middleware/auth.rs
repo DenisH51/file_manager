@@ -8,9 +8,10 @@ use axum_extra::extract::cookie::CookieJar;
 
 use sqlx::SqlitePool;
 
-use crate::services::session_service;
+use crate::services::{session_service, error_service};
+use crate::responses::errors::session_err;
 
-
+//checks session to allow access to secure pages 
 pub async fn require_auth(
     State(db): State<SqlitePool>,
     jar: CookieJar,
@@ -30,33 +31,20 @@ pub async fn require_auth(
 
     let session_token = cookie.value();
 
-    match session_service::find_session(
-        &db,
-        session_token,
-    )
-    .await
-    {
-
+    match session_service::find_session(&db, session_token,).await{
+        //Session valid
         Ok(Some(_user_id)) => {
-
             next.run(request).await
         }
 
+        //session expired
         Ok(None) => {
-
-            Redirect::to("/login")
-                .into_response()
+            error_service::handle_session_auth_errors(session_err::SessionError::InvalidSession).into_response()
         }
 
+        //Session Error
         Err(error) => {
-
-            println!(
-                "Session verification error: {:?}",
-                error
-            );
-
-            Redirect::to("/login")
-                .into_response()
+            error_service::handle_session_auth_errors(error).into_response()
         }
     }
 }

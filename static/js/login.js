@@ -1,3 +1,4 @@
+console.log("LOGIN JS VERSION 999");
 console.log("LOGIN JS LOADED");
 
 const form = document.getElementById("login-form");
@@ -7,10 +8,17 @@ form.addEventListener("submit", async (event) => {
 
     console.log("LOGIN FORM SUBMITTED");
 
-    // Clear previous errors
+    // Clear previous auth errors
     document.querySelectorAll(".error-message").forEach((element) => {
         element.textContent = "";
     });
+
+    // Clear previous flash message
+    const flashContainer = document.getElementById("flash-container");
+
+    if (flashContainer) {
+        flashContainer.textContent = "";
+    }
 
     const formData = new FormData(form);
     const body = new URLSearchParams(formData);
@@ -28,12 +36,12 @@ form.addEventListener("submit", async (event) => {
 
         console.log("Response:", response.status);
 
-        const result = await response.json();
-
-        console.log("Server response:", result);
-
         // Login failed
         if (!response.ok) {
+            const result = await response.json();
+
+            console.log("Server response:", result);
+
             const errorElement = document.getElementById(
                 `${result.field}-error`
             );

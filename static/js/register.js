@@ -1,3 +1,4 @@
+
 console.log("REGISTER JS LOADED");
 
 const form = document.getElementById("register-form");
@@ -15,7 +16,7 @@ form.addEventListener("submit", async (event) => {
     const formData = new FormData(form);
     const body = new URLSearchParams(formData);
 
-    console.log("Sending request...");
+    console.log("Sending registration request...");
 
     try {
         const response = await fetch("/api/auth/register", {
@@ -28,12 +29,12 @@ form.addEventListener("submit", async (event) => {
 
         console.log("Response:", response.status);
 
-        const result = await response.json();
-
-        console.log("Server response:", result);
-
-        // Server returned an error
+        // Registration failed
         if (!response.ok) {
+            const result = await response.json();
+
+            console.log("Server response:", result);
+
             const errorElement = document.getElementById(
                 `${result.field}-error`
             );
@@ -63,4 +64,3 @@ form.addEventListener("submit", async (event) => {
         }
     }
 });
-
