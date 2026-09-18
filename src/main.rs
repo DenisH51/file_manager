@@ -8,13 +8,14 @@ mod models;
 mod responses;
 mod extractor;
 
-
+use tracing_subscriber;
 
 use tokio::net::TcpListener;
 
 
 #[tokio::main]
 async fn main(){
+    tracing_subscriber::fmt::init();
 
     let server_address: String = "127.0.0.1:8080".to_string();
 
@@ -27,8 +28,8 @@ async fn main(){
         .await
         .expect("Unable to connect to the server");
 
-    println!("Server started");
-
+    tracing::info!("Server started");
+    
     axum::serve(listener, router)
         .await
         .unwrap();

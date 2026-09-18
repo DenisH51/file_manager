@@ -55,19 +55,19 @@ pub async fn register(
                     
                     //Registration successful
                     //create cookie proceed directly when response creating in responses/redirect/success_response
-                    success_service::handle_auth_success(Successes::Register, &session_token)
+                    success_service::handle_auth_success(Successes::Register, &session_token, Some(user_id))
                         .into_response()
                 }
 
                 Err(error) => {
-                   error_service::handle_session_auth_errors(error)
+                   error_service::handle_session_auth_errors(error, Some(user_id))
                         .into_response()
                 }
             }
         }
 
         Err(error) => {
-            error_service::handle_auth_errors(error).into_response()
+            error_service::handle_auth_errors(error, None).into_response()
         }
     }
 }
@@ -87,19 +87,19 @@ pub async fn login(
                 Ok(session_token) => {
                     //Login successful
                     //create cookie proceed directly when response creating in responses/redirect/success_response
-                    success_service::handle_auth_success(Successes::Login, &session_token)
+                    success_service::handle_auth_success(Successes::Login, &session_token, Some(user_id))
                         .into_response()
                 }
 
                 Err(error) => {
-                    error_service::handle_session_auth_errors(error).into_response()
+                    error_service::handle_session_auth_errors(error, Some(user_id)).into_response()
                 }
             }
         }
 
 
         Err(error) => {
-            error_service::handle_auth_errors(error).into_response()
+            error_service::handle_auth_errors(error, None).into_response()
         }
     }
 }
@@ -112,16 +112,40 @@ pub async fn logout(
     State(db): State<PgPool>,
     jar: CookieJar,
 ) -> impl IntoResponse {
+    
+    
 
     let session_token = match jar.get("session_token"){
         Some(cookie) => cookie.value().to_owned(),
-        None => return error_service::handle_session_logout_errors(session_err::SessionError::NoSessionToken, jar).into_response(),
+        None => return error_service::handle_session_logout_errors(session_err::SessionError::NoSessionToken, jar, None).into_response(),
+    };
+
+    let user_id = match session_service::find_session(&db, &session_token).await {
+        Ok(Some(user_id)) => Some(user_id),
+
+        Ok(None) =>  {
+            return error_service::handle_session_logout_errors(
+                session_err::SessionError::InvalidSession,
+                jar,
+                None,
+            )
+            .into_response();
+        },
+
+        Err(error) => {
+            return error_service::handle_session_logout_errors(
+                error,
+                jar,
+                None,
+            )
+            .into_response();
+        },
     };
 
     match session_service::delete_session(&db, &session_token).await{
-        Ok(_) => success_service::handle_logout_success(Successes::Logout, jar).into_response(),
+        Ok(_) => success_service::handle_logout_success(Successes::Logout, jar, user_id).into_response(),
 
-        Err(error) => error_service::handle_session_logout_errors(error, jar).into_response(),
+        Err(error) => error_service::handle_session_logout_errors(error, jar, user_id).into_response(),
     }
     
 }

@@ -1,4 +1,6 @@
+use crate::services::logging_service::{LogData, LogLevel, ToLog};
 
+//for http response
 #[derive(Debug)]
 pub enum SessionErrorType{
     Database,
@@ -26,6 +28,8 @@ impl SessionErrorType {
 }
 
 
+
+
 #[derive(Debug)]
 pub enum SessionError{
     Database(sqlx::Error),
@@ -51,3 +55,50 @@ impl SessionError {
     }
 }
 
+impl ToLog for SessionError {
+
+    fn event_type(&self) -> String{
+        format!("SessionError::{:?}", self).to_owned()
+    }
+
+
+    fn log_data(&self) -> LogData {
+        match self{
+            SessionError::InvalidSession => LogData{
+                level: LogLevel::Warn,
+                code: "invalid_session",
+                message: "The user attempted to access a resource using an invalid or expired session",
+                error: None
+            },
+
+
+            SessionError::Database(err) => LogData{
+                level: LogLevel::Error,
+                code: "database_error",
+                message: "The application failed to retrieve session data from the database",
+                error: Some(err.to_string())
+            },
+
+            SessionError::SessionCreation(err) => LogData{
+                level: LogLevel::Error,
+                code: "session_creation_error",
+                message: "The application failed to create a new session for the user",
+                error: Some(err.to_string())
+            },
+
+            SessionError::DeleteSession(err) => LogData{
+                level: LogLevel::Error,
+                code: "delete_Session_error",
+                message: "The application failed to delete the user's session",
+                error: Some(err.to_string())
+            },
+
+            SessionError::NoSessionToken => LogData{
+                level: LogLevel::Warn,
+                code: "no_session_token",
+                message: "The user attempted to authenticate or log out without providing a session token",
+                error: None
+            },
+        }
+    }
+}

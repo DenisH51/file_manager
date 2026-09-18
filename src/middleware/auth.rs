@@ -33,18 +33,18 @@ pub async fn require_auth(
 
     match session_service::find_session(&db, session_token,).await{
         //Session valid
-        Ok(Some(_user_id)) => {
+        Ok(Some(user_id)) => {
             next.run(request).await
         }
 
         //session expired
         Ok(None) => {
-            error_service::handle_session_auth_errors(session_err::SessionError::InvalidSession).into_response()
+            error_service::handle_session_auth_errors(session_err::SessionError::InvalidSession, None).into_response()
         }
 
         //Session Error
         Err(error) => {
-            error_service::handle_session_auth_errors(error).into_response()
+            error_service::handle_session_auth_errors(error, None).into_response()
         }
     }
 }
