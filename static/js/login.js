@@ -67,7 +67,7 @@ form.addEventListener("submit", async (event) => {
 
         if (generalError) {
             generalError.textContent =
-                "Unable to connect to the server. Please try again later.";
+                "Unable to connect to the server. Please try again later";
         }
     }
 });

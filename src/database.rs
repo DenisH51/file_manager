@@ -27,5 +27,6 @@ pub async fn connect_database() -> PgPool{
         .expect("Database migration failed");
 
 
+
     database
 }

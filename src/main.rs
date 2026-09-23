@@ -9,7 +9,7 @@ mod responses;
 mod extractor;
 
 use tracing_subscriber;
-
+use std::env;
 use tokio::net::TcpListener;
 
 
@@ -17,7 +17,10 @@ use tokio::net::TcpListener;
 async fn main(){
     tracing_subscriber::fmt::init();
 
-    let server_address: String = "127.0.0.1:8080".to_string();
+    dotenvy::dotenv().expect("Failed to load .env file");
+
+    let server_address = env::var("SERVER_ADDRESS")
+        .expect("SERVER_ADDRESS is not set");
 
     let database = database::connect_database().await;
 

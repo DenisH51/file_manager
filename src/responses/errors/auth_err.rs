@@ -269,7 +269,7 @@ impl BusinessError {
 impl InfrastructureError {
     pub fn message(&self) -> &'static str{
         match self{
-            InfrastructureError::Database(_) => "Somethig going wrong",
+            InfrastructureError::Database(_) => "Unable to connect to the server. Please try again later",
             InfrastructureError::PasswordHashError(_) => "Somethig going wrong",
             InfrastructureError::PasswordVerificationError(_) => "Somethig going wrong",
         }
